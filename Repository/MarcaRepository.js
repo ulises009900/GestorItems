@@ -12,4 +12,12 @@ export default class MarcaRepository {
     static eliminar(id) {
         db.prepare("DELETE FROM marcas WHERE id=?").run(id);
     }
+    static estaEnUso(id) {
+        return db.prepare(
+            "SELECT 1 FROM articulos WHERE marca_id=? LIMIT 1"
+        ).get(id);
+    }
+
 }
+
+

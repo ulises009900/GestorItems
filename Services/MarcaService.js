@@ -13,4 +13,11 @@ export default class MarcaService {
     static eliminar(id) {
         MarcaRepository.eliminar(id);
     }
+
+    static eliminar(id) {
+        if (MarcaRepository.estaEnUso(id))
+            throw "Marca en uso por artículos";
+        MarcaRepository.eliminar(id);
+    }
+
 }

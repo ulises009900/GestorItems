@@ -104,5 +104,7 @@ fotoInput.onchange = () => {
     preview.src = URL.createObjectURL(file);
 };
 
+window.opener.postMessage("refrescar");
+
 
 cargarCombos();

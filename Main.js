@@ -31,5 +31,8 @@ const crearVentanaAlta = () => {
 };
 
 ipcMain.handle("abrir-alta", () => crearVentanaAlta());
-
 app.whenReady().then(crearVentanaPrincipal);
+ipcMain.on("refrescar", () => {
+    ventanaPrincipal.webContents.send("refrescar");
+});
+

@@ -27,3 +27,12 @@ contextBridge.exposeInMainWorld("api", {
     crearProveedor: (d) => ProveedorService.crear(d),
     eliminarProveedor: (id) => ProveedorService.eliminar(id)
 });
+
+import { contextBridge, ipcRenderer } from "electron";
+
+contextBridge.exposeInMainWorld("api", {
+    // otros métodos...
+
+    historialStock: codigo =>
+        ipcRenderer.invoke("historial-stock", codigo)
+});

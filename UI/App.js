@@ -1,39 +1,19 @@
-import ArticuloService from "../services/ArticuloService.js";
-
-function cargarTabla() {
-  const tbody = document.querySelector("#tabla tbody");
-  tbody.innerHTML = "";
-
-  ArticuloService.listar().forEach(a => {
-    const fila = `
-      <tr ${a.stockCritico() ? "class='critico'" : ""}>
-        <td>${a.codigo}</td>
-        <td>${a.descripcion}</td>
-        <td>${a.marca_id}</td>
-        <td>$${a.precioFinal().toFixed(2)}</td>
-        <td>${a.stock}</td>
-      </tr>`;
-    tbody.innerHTML += fila;
-  });
+// ===============================
+// UTILIDAD GLOBAL
+// ===============================
+function ejecutar(fn) {
+  try {
+    fn();
+  } catch (e) {
+    alert(e);
+  }
 }
 
-document.getElementById("nuevo").onclick = () => {
-  ArticuloService.crear({
-    codigo: "100500",
-    descripcion: "Producto nuevo",
-    rubro: "General",
-    marca_id: 1,
-    proveedor_id: 1,
-    costo: 1000,
-    ganancia: 150,
-    iva: 21,
-    stock: 5,
-    stock_minimo: 1
-  });
-  cargarTabla();
-};
+// ===============================
+// CARGA DE TABLA
+// ===============================
 function cargar() {
-  const tbody = document.querySelector("tbody");
+  const tbody = document.querySelector("#tabla tbody");
   tbody.innerHTML = "";
 
   window.api.listarArticulos().forEach(a => {
@@ -42,156 +22,152 @@ function cargar() {
       <td>${a.codigo}</td>
       <td>${a.descripcion}</td>
       <td>${a.marca_id}</td>
-      <td>$${a.precioFinal().toFixed(2)}</td>
+      <td>$${a.precioFinal.toFixed(2)}</td>
       <td>${a.stock}</td>
     `;
+
+    tr.onclick = () => {
+      document
+        .querySelectorAll("#tabla tbody tr")
+        .forEach(f => f.classList.remove("seleccionado"));
+      tr.classList.add("seleccionado");
+    };
+
     tbody.appendChild(tr);
   });
 }
 
-document.getElementById("nuevo").onclick = () => {
-  window.api.crearArticulo({
-    codigo: Date.now().toString(),
-    descripcion: "Nuevo producto",
-    rubro: "General",
-    marca_id: 1,
-    proveedor_id: 1,
-    costo: 2000,
-    ganancia: 150,
-    iva: 21,
-    stock: 3,
-    stock_minimo: 1
-  });
-  cargar();
-};
-
+// ===============================
+// BOTÓN NUEVO
+// ===============================
 document.getElementById("nuevo").onclick = () => {
   window.api.abrirAlta();
 };
 
+// ===============================
+// BUSCADOR (INPUT SUPERIOR)
+// ===============================
+const inputBuscar = document.getElementById("buscar");
+
+inputBuscar.addEventListener("input", e => {
+  const texto = e.target.value.toLowerCase();
+
+  document.querySelectorAll("#tabla tbody tr").forEach(tr => {
+    const fila = tr.innerText.toLowerCase();
+    tr.style.display = fila.includes(texto) ? "" : "none";
+  });
+});
+
+// ===============================
+// ORDEN POR COLUMNAS
+// ===============================
+document.querySelectorAll("th[data-col]").forEach(th => {
+  let asc = true;
+
+  th.addEventListener("click", () => {
+    const col = Number(th.dataset.col);
+    const tbody = document.querySelector("#tabla tbody");
+    const filas = [...tbody.rows];
+
+    filas.sort((a, b) => {
+      const A = a.cells[col].innerText;
+      const B = b.cells[col].innerText;
+      return asc
+        ? A.localeCompare(B, "es", { numeric: true })
+        : B.localeCompare(A, "es", { numeric: true });
+    });
+
+    asc = !asc;
+    filas.forEach(f => tbody.appendChild(f));
+  });
+});
+
+// ===============================
+// ATAJOS DE TECLADO (UN SOLO LISTENER)
+// ===============================
 document.addEventListener("keydown", e => {
+  const fila = document.querySelector("tr.seleccionado");
+
+  // F1 → Alta
   if (e.key === "F1") {
     e.preventDefault();
     window.api.abrirAlta();
+    return;
   }
-});
 
-const inputBuscar = document.getElementById("buscarCodigo");
-
-document.addEventListener("keydown", e => {
+  // F2 → Buscar
   if (e.key === "F2") {
     e.preventDefault();
-    inputBuscar.style.display = "block";
     inputBuscar.focus();
-    inputBuscar.select();
+    return;
   }
 
-  if (e.key === "Escape") {
-    inputBuscar.value = "";
-    inputBuscar.style.display = "none";
-  }
-});
-
-inputBuscar.addEventListener("input", () => {
-  const codigo = inputBuscar.value.trim();
-  if (!codigo) return;
-
-  const filas = document.querySelectorAll("#tabla tbody tr");
-
-  filas.forEach(fila => {
-    const codigoFila = fila.children[0].innerText;
-
-    if (codigoFila.startsWith(codigo)) {
-      fila.classList.add("seleccionado");
-      fila.scrollIntoView({ block: "center" });
-    } else {
-      fila.classList.remove("seleccionado");
-    }
-  });
-});
-
-inputBuscar.addEventListener("keydown", e => {
-  if (e.key === "Enter") {
-    const seleccionado = document.querySelector("tr.seleccionado");
-    if (!seleccionado) return;
-
-    const codigo = seleccionado.children[0].innerText;
-    console.log("Artículo seleccionado:", codigo);
-
-    inputBuscar.style.display = "none";
-    inputBuscar.value = "";
-  }
-});
-
-ipcMain.handle("abrir-editar", (_, codigo) => {
-  ventanaAlta = new BrowserWindow({
-    width: 600,
-    height: 550,
-    parent: ventanaPrincipal,
-    webPreferences: {
-      preload: path.join(process.cwd(), "preload.js")
-    }
-  });
-
-  ventanaAlta.loadFile("ui/alta.html", {
-    query: { codigo }
-  });
-});
-
-inputBuscar.addEventListener("keydown", e => {
-  if (e.key === "Enter") {
-    const fila = document.querySelector("tr.seleccionado");
-    if (!fila) return;
-
-    const codigo = fila.children[0].innerText;
-    window.api.abrirEditar(codigo);
-    inputBuscar.style.display = "none";
-    inputBuscar.value = "";
-  }
-});
-
-document.addEventListener("keydown", e => {
-  if (e.key === "Delete") {
-    const fila = document.querySelector("tr.seleccionado");
-    if (!fila) return;
-
+  // DELETE → Eliminar
+  if (e.key === "Delete" && fila) {
     const codigo = fila.children[0].innerText;
     if (confirm(`Eliminar artículo ${codigo}?`)) {
-      window.api.eliminarArticulo(codigo);
-      cargar();
+      ejecutar(() => {
+        window.api.eliminarArticulo(codigo);
+        cargar();
+      });
     }
+    return;
   }
-});
 
-
-document.addEventListener("keydown", e => {
-  if (e.key === "F3") window.open("abm.html?tipo=marca");
-  if (e.key === "F4") window.open("abm.html?tipo=proveedor");
-});
-
-document.addEventListener("keydown", e => {
-  const fila = document.querySelector("tr.seleccionado");
+  // Sin fila no hay acciones de stock
   if (!fila) return;
 
   const codigo = fila.children[0].innerText;
 
+  // + Entrada de stock
   if (e.key === "+") {
     const cant = prompt("Cantidad entrada:");
-    window.api.stockEntrada(codigo, Number(cant));
-    cargar();
+    if (!cant) return;
+
+    ejecutar(() => {
+      window.api.stockEntrada(codigo, Number(cant));
+      cargar();
+    });
   }
 
+  // - Salida de stock
   if (e.key === "-") {
     const cant = prompt("Cantidad salida:");
-    window.api.stockSalida(codigo, Number(cant));
-    cargar();
+    if (!cant) return;
+
+    ejecutar(() => {
+      window.api.stockSalida(codigo, Number(cant));
+      cargar();
+    });
   }
 });
 
-document.getElementById("exportar").onclick = () =>
+// ===============================
+// EXPORTAR
+// ===============================
+document.getElementById("exportar").onclick = () => {
   window.api.exportarExcel();
+};
 
+ipcMain.handle("historial-stock", (_, codigo) => {
+  return StockService.historial(codigo);
+});
 
+// H → Historial de stock
+if (e.key.toLowerCase() === "h" && fila) {
+  const codigo = fila.children[0].innerText;
+  window.open(`historial.html?codigo=${codigo}`, "_blank");
+  return;
+}
 
+// ===============================
+// REFRESCO DESDE VENTANA HIJA
+// ===============================
+window.addEventListener("message", e => {
+  if (e.data === "refrescar") cargar();
+});
+
+// ===============================
+// INICIO
+// ===============================
 cargar();
-cargarTabla();

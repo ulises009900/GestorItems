@@ -1,18 +1,20 @@
-import db from "../database/conexion.js";
+import db from "../db/database.js";
 
 export default class StockRepository {
-    static registrar(codigo, tipo, cantidad) {
-        db.prepare(`
-      INSERT INTO movimientos_stock 
-      (codigo_articulo, tipo, cantidad, fecha)
-      VALUES (?,?,?,datetime('now'))
-    `).run(codigo, tipo, cantidad);
 
-        const signo = tipo === "ENTRADA" ? "+" : "-";
-        db.prepare(`
-      UPDATE articulos 
-      SET stock = stock ${signo} ?
+  static registrar(codigo, tipo, cantidad) {
+    db.prepare(`
+      INSERT INTO stock_movimientos (codigo, tipo, cantidad)
+      VALUES (?, ?, ?)
+    `).run(codigo, tipo, cantidad);
+  }
+
+  static listarPorCodigo(codigo) {
+    return db.prepare(`
+      SELECT tipo, cantidad, fecha
+      FROM stock_movimientos
       WHERE codigo = ?
-    `).run(cantidad, codigo);
-    }
+      ORDER BY fecha DESC
+    `).all(codigo);
+  }
 }
