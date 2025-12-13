@@ -23,3 +23,15 @@ CREATE TABLE articulos (
   FOREIGN KEY (marca_id) REFERENCES marcas(id),
   FOREIGN KEY (proveedor_id) REFERENCES proveedores(id)
 );
+
+
+CREATE TABLE movimientos_stock (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  codigo_articulo TEXT,
+  tipo TEXT,
+  cantidad INTEGER,
+  fecha TEXT,
+  FOREIGN KEY (codigo_articulo) REFERENCES articulos(codigo)
+);
+
+ALTER TABLE articulos ADD COLUMN foto TEXT;

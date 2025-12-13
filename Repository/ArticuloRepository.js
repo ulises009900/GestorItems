@@ -13,4 +13,28 @@ export default class ArticuloRepository {
     `);
         stmt.run(articulo);
     }
+
+    static obtenerPorCodigo(codigo) {
+        return db.prepare(
+            "SELECT * FROM articulos WHERE codigo = ?"
+        ).get(codigo);
+    }
+
+    static actualizar(a) {
+        db.prepare(`
+    UPDATE articulos SET
+      descripcion=@descripcion,
+      costo=@costo,
+      ganancia=@ganancia,
+      iva=@iva,
+      stock=@stock
+    WHERE codigo=@codigo
+  `).run(a);
+    }
+
+    static eliminar(codigo) {
+        db.prepare("DELETE FROM articulos WHERE codigo = ?").run(codigo);
+    }
+
+
 }
