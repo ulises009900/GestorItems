@@ -83,7 +83,7 @@ document.querySelectorAll("th[data-col]").forEach(th => {
 });
 
 // ===============================
-// ATAJOS DE TECLADO (UN SOLO LISTENER)
+// ATAJOS DE TECLADO
 // ===============================
 document.addEventListener("keydown", e => {
   const fila = document.querySelector("tr.seleccionado");
@@ -123,49 +123,40 @@ document.addEventListener("keydown", e => {
   if (e.key === "+") {
     const cant = prompt("Cantidad entrada:");
     if (!cant) return;
-
     ejecutar(() => {
       window.api.stockEntrada(codigo, Number(cant));
       cargar();
     });
+    return;
   }
 
   // - Salida de stock
   if (e.key === "-") {
     const cant = prompt("Cantidad salida:");
     if (!cant) return;
-
     ejecutar(() => {
       window.api.stockSalida(codigo, Number(cant));
       cargar();
     });
+    return;
+  }
+
+  // H → Historial de stock
+  if (e.key.toLowerCase() === "h") {
+    window.open(`UI/Historial.html?codigo=${codigo}`, "_blank");
+    return;
   }
 });
 
 // ===============================
 // EXPORTAR
 // ===============================
-document.getElementById("exportar").onclick = () => {
-  window.api.exportarExcel();
-};
-
-ipcMain.handle("historial-stock", (_, codigo) => {
-  return StockService.historial(codigo);
-});
-
-// H → Historial de stock
-if (e.key.toLowerCase() === "h" && fila) {
-  const codigo = fila.children[0].innerText;
-  window.open(`historial.html?codigo=${codigo}`, "_blank");
-  return;
+const exportBtn = document.getElementById("exportar");
+if (exportBtn) {
+  exportBtn.onclick = () => {
+    ejecutar(() => window.api.exportarExcel());
+  };
 }
-
-// ===============================
-// REFRESCO DESDE VENTANA HIJA
-// ===============================
-window.addEventListener("message", e => {
-  if (e.data === "refrescar") cargar();
-});
 
 // ===============================
 // INICIO

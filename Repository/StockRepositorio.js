@@ -1,4 +1,4 @@
-import db from "../db/database.js";
+import db from "../DataBase/Conexion.js";
 
 export default class StockRepository {
 

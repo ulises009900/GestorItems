@@ -1,4 +1,4 @@
-import MarcaRepository from "../repository/MarcaRepository.js";
+import MarcaRepository from "../Repository/MarcaRepository.js";
 
 export default class MarcaService {
     static listar() {
@@ -8,10 +8,6 @@ export default class MarcaService {
     static crear(nombre) {
         if (!nombre) throw "Nombre obligatorio";
         MarcaRepository.crear(nombre);
-    }
-
-    static eliminar(id) {
-        MarcaRepository.eliminar(id);
     }
 
     static eliminar(id) {

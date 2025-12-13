@@ -1,4 +1,4 @@
-import db from "../database/conexion.js";
+import db from "../DataBase/Conexion.js";
 
 export default class ArticuloRepository {
     static obtenerTodos() {
@@ -30,6 +30,14 @@ export default class ArticuloRepository {
       stock=@stock
     WHERE codigo=@codigo
   `).run(a);
+    }
+
+    static sumarStock(codigo, cantidad) {
+        db.prepare("UPDATE articulos SET stock = stock + ? WHERE codigo = ?").run(cantidad, codigo);
+    }
+
+    static restarStock(codigo, cantidad) {
+        db.prepare("UPDATE articulos SET stock = stock - ? WHERE codigo = ?").run(cantidad, codigo);
     }
 
     static eliminar(codigo) {

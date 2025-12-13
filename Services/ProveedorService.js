@@ -1,4 +1,5 @@
-import ProveedorRepository from "../repository/ProveedorRepository.js";
+import ProveedorRepository from "../Repository/ProveedorRepository.js";
+import ArticuloRepository from "../Repository/ArticuloRepository.js";
 
 export default class ProveedorService {
     static listar() {
@@ -11,6 +12,9 @@ export default class ProveedorService {
     }
 
     static eliminar(id) {
+        const enUso = ArticuloRepository.obtenerTodos()
+            .some(a => a.proveedor_id === id);
+        if (enUso) throw "Proveedor en uso por artículos";
         ProveedorRepository.eliminar(id);
     }
 }

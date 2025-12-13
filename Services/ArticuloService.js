@@ -1,20 +1,21 @@
-import Articulo from "../models/Articulo.js";
-import ArticuloRepository from "../repository/ArticuloRepository.js";
+import Articulo from "../Models/Articulo.js";
+import ArticuloRepository from "../Repository/ArticuloRepository.js";
 
 export default class ArticuloService {
     static crear(datos) {
+        this.validar(datos);
         const articulo = new Articulo(datos);
         ArticuloRepository.guardar(articulo);
         return articulo;
     }
 
     static listar() {
-        return ArticuloRepository.obtenerTodos()
-            .map(a => new Articulo(a));
+        return ArticuloRepository.obtenerTodos().map(a => new Articulo(a));
     }
 
     static obtenerPorCodigo(codigo) {
-        return ArticuloRepository.obtenerPorCodigo(codigo);
+        const a = ArticuloRepository.obtenerPorCodigo(codigo);
+        return a ? new Articulo(a) : null;
     }
 
     static actualizar(datos) {
@@ -34,13 +35,6 @@ export default class ArticuloService {
         const existe = ArticuloRepository.obtenerPorCodigo(datos.codigo);
         if (existe) throw "Código duplicado";
     }
-
-    static crear(datos) {
-        this.validar(datos);
-        ArticuloRepository.guardar(datos);
-    }
-
-
-
 }
+
 

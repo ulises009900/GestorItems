@@ -25,22 +25,13 @@ CREATE TABLE articulos (
 );
 
 
-CREATE TABLE movimientos_stock (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  codigo_articulo TEXT,
-  tipo TEXT,
-  cantidad INTEGER,
-  fecha TEXT,
-  FOREIGN KEY (codigo_articulo) REFERENCES articulos(codigo)
-);
-
-ALTER TABLE articulos ADD COLUMN foto TEXT;
-
-
 CREATE TABLE IF NOT EXISTS stock_movimientos (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   codigo TEXT NOT NULL,
-  tipo TEXT NOT NULL, -- ENTRADA | SALIDA
+  tipo TEXT NOT NULL,
   cantidad INTEGER NOT NULL,
-  fecha DATETIME DEFAULT CURRENT_TIMESTAMP
+  fecha DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (codigo) REFERENCES articulos(codigo)
 );
+
+ALTER TABLE articulos ADD COLUMN foto TEXT;

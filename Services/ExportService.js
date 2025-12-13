@@ -1,5 +1,5 @@
 import ExcelJS from "exceljs";
-import ArticuloRepository from "../repository/ArticuloRepository.js";
+import ArticuloRepository from "../Repository/ArticuloRepository.js";
 
 export default class ExportService {
     static async excel() {

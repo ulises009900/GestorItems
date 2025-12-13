@@ -1,4 +1,4 @@
-import db from "../database/conexion.js";
+import db from "../DataBase/Conexion.js";
 
 export default class MarcaRepository {
     static listar() {

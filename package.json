@@ -1,5 +1,13 @@
 {
+  "name": "gestor-items",
+  "version": "1.0.0",
+  "main": "Main.js",
+  "scripts": {
+    "start": "electron ."
+  },
   "dependencies": {
-    "exceljs": "^4.4.0"
+    "exceljs": "^4.4.0",
+    "better-sqlite3": "^8.0.1",
+    "electron": "^25.0.0"
   }
 }

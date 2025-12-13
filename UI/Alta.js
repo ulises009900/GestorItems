@@ -1,56 +1,66 @@
+const params = new URLSearchParams(location.search);
+const codigoEditar = params.get("codigo");
+
+const codigo = document.getElementById("codigo");
+const descripcion = document.getElementById("descripcion");
+const costo = document.getElementById("costo");
+const ganancia = document.getElementById("ganancia");
+const iva = document.getElementById("iva");
+const stock = document.getElementById("stock");
+const marcaSel = document.getElementById("marca");
+const proveedorSel = document.getElementById("proveedor");
+const fotoInput = document.getElementById("foto");
+const preview = document.getElementById("preview");
+const guardar = document.getElementById("guardar");
+
 function calcularPrecio() {
-    const costo = Number(document.getElementById("costo").value);
-    const ganancia = Number(document.getElementById("ganancia").value);
-    const iva = Number(document.getElementById("iva").value);
-    const params = new URLSearchParams(location.search);
-    const codigoEditar = params.get("codigo");
-    const marcaSel = document.getElementById("marca");
-    const proveedorSel = document.getElementById("proveedor");
-    const fotoInput = document.getElementById("foto");
-    const preview = document.getElementById("preview");
-
-    if (!costo) return;
-
-    const precio =
-        costo * (1 + ganancia / 100) * (1 + iva / 100);
-
-    document.getElementById("precio").innerText =
-        "$" + precio.toFixed(2);
+    const c = Number(costo.value);
+    const g = Number(ganancia.value);
+    const iv = Number(iva.value);
+    if (!c) return;
+    const precio = c * (1 + g / 100) * (1 + iv / 100);
+    document.getElementById("precio").innerText = "$" + precio.toFixed(2);
 }
 
 ["costo", "ganancia", "iva"].forEach(id =>
     document.getElementById(id).addEventListener("input", calcularPrecio)
 );
 
-document.getElementById("guardar").onclick = () => {
-    window.api.crearArticulo({
-        codigo: document.getElementById("codigo").value,
-        descripcion: document.getElementById("descripcion").value,
-        rubro: "General",
-        marca_id: 1,
-        proveedor_id: 1,
-        costo: Number(costo.value),
-        ganancia: Number(ganancia.value),
-        iva: Number(iva.value),
-        stock: Number(stock.value),
-        stock_minimo: 1,
-        marca_id: Number(marcaSel.value),
-        proveedor_id: Number(proveedorSel.value),
-        foto: `fotos/${codigo.value}.jpg`
-
-
+function cargarCombos() {
+    window.api.listarMarcas().forEach(m => {
+        marcaSel.innerHTML += `<option value="${m.id}">${m.nombre}</option>`;
     });
+    window.api.listarProveedores().forEach(p => {
+        proveedorSel.innerHTML += `<option value="${p.id}">${p.nombre}</option>`;
+    });
+}
 
-    window.close();
+guardar.onclick = () => {
+    try {
+        const datos = {
+            codigo: codigo.value,
+            descripcion: descripcion.value,
+            rubro: "General",
+            costo: +costo.value,
+            ganancia: +ganancia.value,
+            iva: +iva.value,
+            stock: +stock.value,
+            stock_minimo: 1,
+            marca_id: +marcaSel.value,
+            proveedor_id: +proveedorSel.value
+        };
+        if (codigoEditar) window.api.actualizarArticulo(datos);
+        else window.api.crearArticulo(datos);
+        window.close();
+    } catch (e) {
+        alert(e);
+    }
 };
 
 document.addEventListener("keydown", e => {
-    if (e.key === "Enter") document.getElementById("guardar").click();
+    if (e.key === "Enter") guardar.click();
     if (e.key === "Escape") window.close();
 });
-
-
-
 
 if (codigoEditar) {
     const a = window.api.obtenerArticulo(codigoEditar);
@@ -61,50 +71,14 @@ if (codigoEditar) {
     iva.value = a.iva;
     stock.value = a.stock;
     codigo.disabled = true;
+    guardar.innerText = "Actualizar";
 }
 
-guardar.onclick = () => {
-    const datos = {
-        codigo: codigo.value,
-        descripcion: descripcion.value,
-        costo: +costo.value,
-        ganancia: +ganancia.value,
-        iva: +iva.value,
-        stock: +stock.value,
-        stock_minimo: 1
+if (fotoInput) {
+    fotoInput.onchange = () => {
+        const file = fotoInput.files[0];
+        if (file && preview) preview.src = URL.createObjectURL(file);
     };
-
-    if (codigoEditar) window.api.actualizarArticulo(datos);
-    else window.api.crearArticulo(datos);
-
-    window.close();
-};
-
-try {
-    window.api.crearArticulo(datos);
-    window.close();
-} catch (e) {
-    alert(e);
 }
-
-
-function cargarCombos() {
-    window.api.listarMarcas().forEach(m => {
-        marcaSel.innerHTML += `<option value="${m.id}">${m.nombre}</option>`;
-    });
-
-    window.api.listarProveedores().forEach(p => {
-        proveedorSel.innerHTML += `<option value="${p.id}">${p.nombre}</option>`;
-    });
-
-}
-
-fotoInput.onchange = () => {
-    const file = fotoInput.files[0];
-    preview.src = URL.createObjectURL(file);
-};
-
-window.opener.postMessage("refrescar");
-
 
 cargarCombos();

@@ -1,5 +1,6 @@
 import { app, BrowserWindow, ipcMain } from "electron";
 import path from "path";
+import ExportService from "./Services/ExportService.js";
 
 let ventanaPrincipal;
 let ventanaAlta;
@@ -9,11 +10,11 @@ const crearVentanaPrincipal = () => {
         width: 1200,
         height: 700,
         webPreferences: {
-            preload: path.join(process.cwd(), "preload.js")
+            preload: path.join(process.cwd(), "Preload.js")
         }
     });
 
-    ventanaPrincipal.loadFile("ui/index.html");
+    ventanaPrincipal.loadFile("UI/Index.html");
 };
 
 const crearVentanaAlta = () => {
@@ -23,14 +24,37 @@ const crearVentanaAlta = () => {
         parent: ventanaPrincipal,
         modal: false,
         webPreferences: {
-            preload: path.join(process.cwd(), "preload.js")
+            preload: path.join(process.cwd(), "Preload.js")
         }
     });
 
-    ventanaAlta.loadFile("ui/alta.html");
+    ventanaAlta.loadFile("UI/Alta.html");
 };
 
 ipcMain.handle("abrir-alta", () => crearVentanaAlta());
+
+ipcMain.handle("abrir-editar", (_, codigo) => {
+    ventanaAlta = new BrowserWindow({
+        width: 600,
+        height: 550,
+        parent: ventanaPrincipal,
+        modal: false,
+        webPreferences: {
+            preload: path.join(process.cwd(), "Preload.js")
+        }
+    });
+    ventanaAlta.loadFile("UI/Alta.html?codigo=" + codigo);
+});
+
+ipcMain.handle("exportar-excel", async () => {
+    try {
+        await ExportService.excel();
+        return { success: true, message: "Archivo exportado: articulos.xlsx" };
+    } catch (e) {
+        return { success: false, message: e.toString() };
+    }
+});
+
 app.whenReady().then(crearVentanaPrincipal);
 ipcMain.on("refrescar", () => {
     ventanaPrincipal.webContents.send("refrescar");

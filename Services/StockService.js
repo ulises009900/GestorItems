@@ -1,5 +1,5 @@
-import StockRepository from "../repositories/StockRepository.js";
-import ArticuloRepository from "../repositories/ArticuloRepository.js";
+import StockRepository from "../Repository/StockRepositorio.js";
+import ArticuloRepository from "../Repository/ArticuloRepository.js";
 
 export default class StockService {
 
