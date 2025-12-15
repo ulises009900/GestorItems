@@ -27,4 +27,11 @@ contextBridge.exposeInMainWorld("api", {
     historialStock: codigo => StockService.historial(codigo),
 
     exportarExcel: () => ipcRenderer.invoke("exportar-excel")
+
+    backupDB: () =>
+        ipcRenderer.invoke("backup-db"),
+
+    restoreDB: () =>
+        ipcRenderer.invoke("restore-db"),
+
 });

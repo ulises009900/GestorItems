@@ -81,4 +81,6 @@ if (fotoInput) {
     };
 }
 
+
+
 cargarCombos();

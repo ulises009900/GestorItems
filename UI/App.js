@@ -18,6 +18,11 @@ function cargar() {
 
   window.api.listarArticulos().forEach(a => {
     const tr = document.createElement("tr");
+
+    if (a.stock <= a.stock_minimo) {
+      tr.classList.add("critico");
+    }
+
     tr.innerHTML = `
       <td>${a.codigo}</td>
       <td>${a.descripcion}</td>
@@ -36,6 +41,7 @@ function cargar() {
     tbody.appendChild(tr);
   });
 }
+
 
 // ===============================
 // BOTÓN NUEVO
@@ -158,7 +164,22 @@ if (exportBtn) {
   };
 }
 
-// ===============================
-// INICIO
-// ===============================
+
+
+
+document.getElementById("backup").onclick = async () => {
+  const ok = await window.api.backupDB();
+  if (ok) alert("Backup realizado");
+};
+
+document.getElementById("restore").onclick = async () => {
+  if (!confirm("Esto reemplaza la base actual. ¿Continuar?")) return;
+
+  const ok = await window.api.restoreDB();
+  if (ok) {
+    alert("Base restaurada");
+    cargar();
+  }
+};
+
 cargar();

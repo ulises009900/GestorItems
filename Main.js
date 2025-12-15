@@ -1,9 +1,14 @@
 import { app, BrowserWindow, ipcMain } from "electron";
 import path from "path";
 import ExportService from "./Services/ExportService.js";
+import fs from "fs";
+import path from "path";
+import { app, ipcMain, dialog } from "electron";
 
 let ventanaPrincipal;
 let ventanaAlta;
+
+const dbPath = path.join(app.getPath("userData"), "app.db");
 
 const crearVentanaPrincipal = () => {
     ventanaPrincipal = new BrowserWindow({
@@ -53,6 +58,18 @@ ipcMain.handle("exportar-excel", async () => {
     } catch (e) {
         return { success: false, message: e.toString() };
     }
+});
+
+ipcMain.handle("backup-db", async () => {
+    const { filePath } = await dialog.showSaveDialog({
+        title: "Guardar backup",
+        defaultPath: "backup_app.db"
+    });
+
+    if (!filePath) return false;
+
+    fs.copyFileSync(dbPath, filePath);
+    return true;
 });
 
 app.whenReady().then(crearVentanaPrincipal);

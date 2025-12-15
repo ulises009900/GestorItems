@@ -43,6 +43,16 @@ export default class ArticuloRepository {
     static eliminar(codigo) {
         db.prepare("DELETE FROM articulos WHERE codigo = ?").run(codigo);
     }
+    static listar() {
+        return db.prepare(`
+            SELECT codigo,
+            descripcion,
+            marca_id,
+            stock,
+            stock_minimo, precio
+            FROM articulos`
+        ).all();
+    }
 
 
 }
