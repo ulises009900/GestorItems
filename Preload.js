@@ -26,7 +26,7 @@ contextBridge.exposeInMainWorld("api", {
     stockSalida: (codigo, cant) => StockService.salida(codigo, cant),
     historialStock: codigo => StockService.historial(codigo),
 
-    exportarExcel: () => ipcRenderer.invoke("exportar-excel")
+    exportarExcel: () => ipcRenderer.invoke("exportar-excel"),
 
     backupDB: () =>
         ipcRenderer.invoke("backup-db"),
@@ -34,4 +34,13 @@ contextBridge.exposeInMainWorld("api", {
     restoreDB: () =>
         ipcRenderer.invoke("restore-db"),
 
-});
+    listarArticulos: () => ipcRenderer.invoke("listar-articulos"),
+    stockEntrada: (c, n) => ipcRenderer.invoke("stock-entrada", c, n),
+    stockSalida: (c, n) => ipcRenderer.invoke("stock-salida", c, n),
+    historialStock: codigo =>
+        ipcRenderer.invoke("historial-stock", codigo),
+})
+
+
+
+

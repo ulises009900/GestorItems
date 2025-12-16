@@ -60,6 +60,13 @@ guardar.onclick = () => {
 document.addEventListener("keydown", e => {
     if (e.key === "Enter") guardar.click();
     if (e.key === "Escape") window.close();
+    // H → abrir historial del artículo
+    if (e.key.toLowerCase() === "h" && fila) {
+        const codigo = fila.children[0].innerText;
+        window.open(`historial.html?codigo=${codigo}`, "_blank");
+        return;
+    }
+
 });
 
 if (codigoEditar) {

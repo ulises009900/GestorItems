@@ -4,6 +4,9 @@ import ExportService from "./Services/ExportService.js";
 import fs from "fs";
 import path from "path";
 import { app, ipcMain, dialog } from "electron";
+import { ipcMain } from "electron";
+import StockService from "./services/StockService.js";
+
 
 let ventanaPrincipal;
 let ventanaAlta;
@@ -35,6 +38,11 @@ const crearVentanaAlta = () => {
 
     ventanaAlta.loadFile("UI/Alta.html");
 };
+
+// HISTORIAL DE STOCK
+ipcMain.handle("historial-stock", (_, codigo) => {
+    return StockService.historial(codigo);
+});
 
 ipcMain.handle("abrir-alta", () => crearVentanaAlta());
 
